@@ -13,6 +13,7 @@ Board::Board()
 	click = {-1,-1};
 	action = false;
 	turn = 1;
+	repeat = false;
 
 	// Init board positions 
 	for(int i=0;i<size;i++)
@@ -47,6 +48,14 @@ Board::~Board()
 
 void Board::draw()
 {
+	// Check for super dame
+	for(int x=0;x<size;x++)
+	{
+		if(pos[x][0]==2)
+			pos[x][0]=4;
+		if(pos[x][size-1]==1)
+			pos[x][size-1]=3;
+	}
 	// Clean possibles
 	for(int y=0;y<size;y++)
 	{
@@ -57,7 +66,7 @@ void Board::draw()
 	}
 	// Draw board
 	float sizeSquare = 2/size;
-	glColor3f(1,1,1);
+	glColor3f(0.5, 0.3, 0.1);
 
 	for(int i=0;i<size;i++)
 	{
@@ -76,19 +85,21 @@ void Board::draw()
 	{
 		for(int x=0;x<size;x++)
 		{
+			// TODO delete for
 			if(x==selected[0] && y==selected[1] && (x+y)%2==0 && pos[x][y]!=0)
 			{
-				vector<float> _color = {0.8,0.8,0.5};
+				vector<float> _color = {0.7,0.5,0.3};
 				vector<float> atk  = {0.9,0.1,0.1};
 				drawSquare(x, y, _color);
-				if(x+1<size && y+1<size && pos[x][y]==1)
+				// Top right
+				if(x+1<size && y+1<size && (pos[x][y]==1 || pos[x][y]==3 || pos[x][y]==4))
 				{
 					if(pos[x+1][y+1]==0)
 					{
 						drawSquare(x+1, y+1, _color);
 						possible[x+1][y+1]=1;
 					}
-					else if(pos[x+1][y+1]==(turn==1?2:1))
+					else if(((pos[x+1][y+1]-1)%2+1)==(turn==1?2:1))
 					{
 						if(x+2<size && y+2<size && pos[x+2][y+2]==0)
 						{
@@ -98,14 +109,14 @@ void Board::draw()
 						}
 					}
 				}
-				if(x+1<size && y-1>=0 && pos[x][y]==2)
+				if(x+1<size && y-1>=0 && (pos[x][y]==2 || pos[x][y]==3 || pos[x][y]==4))
 				{
 					if(pos[x+1][y-1]==0)
 					{
 						drawSquare(x+1, y-1, _color);
 						possible[x+1][y-1]=1;
 					}
-					else if(pos[x+1][y-1]==(turn==1?2:1))
+					else if(((pos[x+1][y-1]-1)%2+1)==(turn==1?2:1))
 					{
 						if(x+2<size && y-2<size && pos[x+2][y-2]==0)
 						{
@@ -115,14 +126,14 @@ void Board::draw()
 						}
 					}
 				}
-				if(x-1>=0 && y+1<size && pos[x][y]==1)
+				if(x-1>=0 && y+1<size && (pos[x][y]==1 || pos[x][y]==3 || pos[x][y]==4))
 				{
 					if(pos[x-1][y+1]==0)
 					{
 						drawSquare(x-1, y+1, _color);
 						possible[x-1][y+1]=1;
 					}
-					else if(pos[x-1][y+1]==(turn==1?2:1))
+					else if(((pos[x-1][y+1]-1)%2+1)==(turn==1?2:1))
 					{
 						if(x-2<size && y+2<size && pos[x-2][y+2]==0)
 						{
@@ -132,14 +143,14 @@ void Board::draw()
 						}
 					}
 				}
-				if(x-1>=0 && y-1>=0 && pos[x][y]==2)
+				if(x-1>=0 && y-1>=0 && (pos[x][y]==2 || pos[x][y]==3 || pos[x][y]==4))
 				{
 					if(pos[x-1][y-1]==0)
 					{
 						drawSquare(x-1, y-1, _color);
 						possible[x-1][y-1]=1;
 					}
-					else if(pos[x-1][y-1]==(turn==1?2:1))
+					else if(((pos[x-1][y-1]-1)%2+1)==(turn==1?2:1))
 					{
 						if(x-2<size && y-2<size && pos[x-2][y-2]==0)
 						{
@@ -157,9 +168,9 @@ void Board::draw()
 	{
 		for(int x=0;x<size;x++)
 		{
-			if(pos[x][y]==1)
+			if(pos[x][y]==1 || pos[x][y]==3)
 			{
-  				glColor3f(0.6,0.3,0.1);
+  				glColor3f(0.2,0.2,0.2);
   				glBegin(GL_POLYGON);
   				for (int i = 0; i < 360; i+=10) {
   				  glVertex2d( sizeSquare*0.35f*cos(i/180.0*M_PI) + sizeSquare*(x+0.5)-1,
@@ -167,9 +178,9 @@ void Board::draw()
   				}
   				glEnd();
 			}
-			else if(pos[x][y]==2)
+			else if(pos[x][y]==2 || pos[x][y]==4)
 			{
-  				glColor3f(0.1,0.3,0.6);
+  				glColor3f(0.9,0.7,0.3);
   				glBegin(GL_POLYGON);
   				for (int i = 0; i < 360; i+=10) {
   				  glVertex2d( sizeSquare*0.35f*cos(i/180.0*M_PI) + sizeSquare*(x+0.5)-1,
@@ -177,6 +188,16 @@ void Board::draw()
   				}
   				glEnd();
 
+			}
+			if(pos[x][y]==3 || pos[x][y]==4)
+			{
+  				glColor3f(0.9,0.9,0.9);
+  				glBegin(GL_POLYGON);
+  				for (int i = 0; i < 360; i+=10) {
+  				  glVertex2d( sizeSquare*0.15f*cos(i/180.0*M_PI) + sizeSquare*(x+0.5)-1,
+						      sizeSquare*0.15f*sin(i/180.0*M_PI) + sizeSquare*(y+0.5)-1);
+  				}
+  				glEnd();
 			}
 		}
 	}
@@ -184,14 +205,22 @@ void Board::draw()
 
 void Board::setClick(vector<int> _click)
 {
-	if(pos[_click[0]][_click[1]]!=0)
+	if(pos[_click[0]][_click[1]]!=0 && repeat==false)
 	{
 		action=false;
 	}
 
+	if(repeat && selected==_click)
+	{
+		turn==1?turn=2:turn=1;
+		repeat = false;
+		action = false;
+		selected = {-1,-1};
+	}
+
 	if(action==false)
 	{
-		if(pos[_click[0]][_click[1]]==turn)
+		if((pos[_click[0]][_click[1]]-1)%2+1==turn)
 		{
 			selected = _click;
 			action = true;
@@ -212,25 +241,33 @@ void Board::setClick(vector<int> _click)
 				pos[click[0]][click[1]]=pos[selected[0]][selected[1]];
 				pos[click[0]-1][click[1]-1]=0;
 				pos[selected[0]][selected[1]]=0;
-				action = false;
+				selected = click;
+				action = true;
+				repeat = true;
 				break;
 			case 3:
 				pos[click[0]][click[1]]=pos[selected[0]][selected[1]];
 				pos[click[0]-1][click[1]+1]=0;
 				pos[selected[0]][selected[1]]=0;
-				action = false;
+				selected = click;
+				action = true;
+				repeat = true;
 				break;
 			case 4:
 				pos[click[0]][click[1]]=pos[selected[0]][selected[1]];
 				pos[click[0]+1][click[1]-1]=0;
 				pos[selected[0]][selected[1]]=0;
-				action = false;
+				selected = click;
+				action = true;
+				repeat = true;
 				break;
 			case 5:
 				pos[click[0]][click[1]]=pos[selected[0]][selected[1]];
 				pos[click[0]+1][click[1]+1]=0;
 				pos[selected[0]][selected[1]]=0;
-				action = false;
+				selected = click;
+				action = true;
+				repeat = true;
 				break;
 		}
 	}

@@ -25,5 +25,6 @@ private:
 	vector<int> selected;
 
 	int turn;
+	bool repeat;
 };
 #endif// BOARD_H
