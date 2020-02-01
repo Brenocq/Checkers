@@ -16,7 +16,7 @@ I made this game for no good reason, I was traveling and had no internet to down
 - Movement hint
 - Become king
 
-Like any dame game. Fun!
+Like any checkers. Fun!
 
 ## Installation
 First, you need to download the OpenGl and Glut:
