@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowSize(windowWidth, windowHeight);
 	glutInitWindowPosition((screenWidth/2)-(windowWidth/2), (screenHeight/2)-(windowHeight/2));
-	glutCreateWindow("Dame Game");
+	glutCreateWindow("Checkers");
 	glClearColor(1,1,1, 1.0);// Clear window
 	glutMouseFunc(mouse);// Allow to add points
 	glutDisplayFunc(draw);// Set the draw function
